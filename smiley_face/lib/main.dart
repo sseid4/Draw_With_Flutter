@@ -1,122 +1,351 @@
 import 'package:flutter/material.dart';
+import 'dart:math';
 
 void main() {
-  runApp(const MyApp());
+  runApp(const ShapesDemoApp());
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class ShapesDemoApp extends StatelessWidget {
+  const ShapesDemoApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Shapes Drawing Demo',
       theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // TRY THIS: Try running your application with "flutter run". You'll see
-        // the application has a purple toolbar. Then, without quitting the app,
-        // try changing the seedColor in the colorScheme below to Colors.green
-        // and then invoke "hot reload" (save your changes or press the "hot
-        // reload" button in a Flutter-supported IDE, or press "r" if you used
-        // the command line to start the app).
-        //
-        // Notice that the counter didn't reset back to zero; the application
-        // state is not lost during the reload. To reset the state, use hot
-        // restart instead.
-        //
-        // This works for code too, not just values: Most code changes can be
-        // tested with just a hot reload.
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        primarySwatch: Colors.blue,
+        useMaterial3: true,
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      home: const ShapesDemoScreen(),
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
-
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
-
-  final String title;
-
-  @override
-  State<MyHomePage> createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
-
-  void _incrementCounter() {
-    setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
-    });
-  }
+class ShapesDemoScreen extends StatelessWidget {
+  const ShapesDemoScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
     return Scaffold(
       appBar: AppBar(
-        // TRY THIS: Try changing the color here to a specific color (to
-        // Colors.amber, perhaps?) and trigger a hot reload to see the AppBar
-        // change color while the other colors stay the same.
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
+        title: const Text('Shapes Drawing Demo'),
       ),
-      body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16.0),
         child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          //
-          // TRY THIS: Invoke "debug painting" (choose the "Toggle Debug Paint"
-          // action in the IDE, or press "p" in the console), to see the
-          // wireframe for each widget.
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text('You have pushed the button this many times:'),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headlineMedium,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Task 1: Basic Shapes',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 10),
+            SizedBox(
+              height: 200,
+              child: CustomPaint(
+                painter: BasicShapesPainter(),
+                size: const Size(double.infinity, 200),
+              ),
+            ),
+            const SizedBox(height: 20),
+            const Text(
+              'Task 2: Combined Shapes (Abstract Design)',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 10),
+            SizedBox(
+              height: 300,
+              child: CustomPaint(
+                painter: CombinedShapesPainter(),
+                size: const Size(double.infinity, 300),
+              ),
+            ),
+            const SizedBox(height: 20),
+            const Text(
+              'Task 3: Styled Shapes',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 10),
+            SizedBox(
+              height: 300,
+              child: CustomPaint(
+                painter: StyledShapesPainter(),
+                size: const Size(double.infinity, 300),
+              ),
             ),
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
     );
+  }
+}
+
+class BasicShapesPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    // Determine the center of the canvas
+    final centerX = size.width / 2;
+    final centerY = size.height / 2;
+    final squareOffset = Offset(centerX - 80, centerY);
+    final circleOffset = Offset(centerX, centerY);
+    final arcOffset = Offset(centerX + 80, centerY);
+    final rectOffset = Offset(centerX - 160, centerY);
+    final lineStart = Offset(centerX - 200, centerY - 50);
+    final lineEnd = Offset(centerX - 140, centerY + 50);
+    final ovalOffset = Offset(centerX + 160, centerY);
+
+    // Draw a square
+    final squarePaint = Paint()
+      ..color = Colors.blue
+      ..style = PaintingStyle.fill;
+    canvas.drawRect(
+      Rect.fromCenter(center: squareOffset, width: 60, height: 60),
+      squarePaint,
+    );
+
+    // Draw a circle
+    final circlePaint = Paint()
+      ..color = Colors.red
+      ..style = PaintingStyle.fill;
+    canvas.drawCircle(circleOffset, 30, circlePaint);
+
+    // Draw an arc
+    final arcPaint = Paint()
+      ..color = Colors.green
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 5;
+    canvas.drawArc(
+      Rect.fromCenter(center: arcOffset, width: 60, height: 60),
+      0, // start angle in radians
+      2.1, // sweep angle in radians (about 120 degrees)
+      false, // whether to use center
+      arcPaint,
+    );
+
+    // Draw a rectangle
+    final rectPaint = Paint()
+      ..color = Colors.orange
+      ..style = PaintingStyle.fill;
+    canvas.drawRect(
+      Rect.fromCenter(center: rectOffset, width: 80, height: 40),
+      rectPaint,
+    );
+
+    // Draw a line
+    final linePaint = Paint()
+      ..color = Colors.purple
+      ..strokeWidth = 3;
+    canvas.drawLine(lineStart, lineEnd, linePaint);
+
+    // Draw an oval
+    final ovalPaint = Paint()
+      ..color = Colors.teal
+      ..style = PaintingStyle.fill;
+    canvas.drawOval(
+      Rect.fromCenter(center: ovalOffset, width: 80, height: 40),
+      ovalPaint,
+    );
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) {
+    return false;
+  }
+}
+
+class CombinedShapesPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final centerX = size.width / 2;
+    final centerY = size.height / 2;
+
+    // Background gradient
+    final backgroundGradient = RadialGradient(
+      center: Alignment.center,
+      radius: 0.8,
+      colors: [Colors.blue.shade100, Colors.white],
+    );
+    canvas.drawRect(
+      Rect.fromLTWH(0, 0, size.width, size.height),
+      Paint()..shader = backgroundGradient.createShader(Rect.fromLTWH(0, 0, size.width, size.height)),
+    );
+
+    // Draw a sun (circle with rays)
+    final sunPaint = Paint()
+      ..color = Colors.yellow
+      ..style = PaintingStyle.fill;
+    canvas.drawCircle(Offset(centerX, centerY - 40), 40, sunPaint);
+
+    // Sun rays (lines)
+    final rayPaint = Paint()
+      ..color = Colors.yellow
+      ..strokeWidth = 3;
+    for (int i = 0; i < 8; i++) {
+      final angle = i * (pi / 4); // Use pi from dart:math
+      final dx = cos(angle) * 60;
+      final dy = sin(angle) * 60;
+      canvas.drawLine(
+        Offset(centerX, centerY - 40),
+        Offset(centerX + dx, centerY - 40 + dy),
+        rayPaint,
+      );
+    }
+
+    // Draw a house (square with triangle roof)
+    final housePaint = Paint()
+      ..color = Colors.brown
+      ..style = PaintingStyle.fill;
+    
+    // House body (rectangle)
+    canvas.drawRect(
+      Rect.fromCenter(center: Offset(centerX, centerY + 60), width: 80, height: 60),
+      housePaint,
+    );
+    
+    // House roof (triangle)
+    final roofPaint = Paint()
+      ..color = Colors.red
+      ..style = PaintingStyle.fill;
+    
+    Path roofPath = Path();
+    roofPath.moveTo(centerX - 50, centerY + 30); // Bottom left of roof
+    roofPath.lineTo(centerX, centerY); // Top of roof
+    roofPath.lineTo(centerX + 50, centerY + 30); // Bottom right of roof
+    roofPath.close();
+    canvas.drawPath(roofPath, roofPaint);
+    
+    // House door
+    final doorPaint = Paint()
+      ..color = Colors.black
+      ..style = PaintingStyle.fill;
+    canvas.drawRect(
+      Rect.fromCenter(center: Offset(centerX, centerY + 75), width: 20, height: 30),
+      doorPaint,
+    );
+    
+    // House windows
+    final windowPaint = Paint()
+      ..color = Colors.lightBlue
+      ..style = PaintingStyle.fill;
+    canvas.drawRect(
+      Rect.fromCenter(center: Offset(centerX - 25, centerY + 50), width: 15, height: 15),
+      windowPaint,
+    );
+    canvas.drawRect(
+      Rect.fromCenter(center: Offset(centerX + 25, centerY + 50), width: 15, height: 15),
+      windowPaint,
+    );
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) {
+    return false;
+  }
+}
+
+class StyledShapesPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final centerX = size.width / 2;
+    final centerY = size.height / 2;
+
+    // Create gradient paint
+    final gradientPaint = Paint()
+      ..shader = LinearGradient(
+        colors: [Colors.purple, Colors.pink, Colors.orange],
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+      ).createShader(Rect.fromLTWH(0, 0, size.width, size.height));
+
+    // Draw gradient circle
+    canvas.drawCircle(Offset(centerX - 80, centerY - 50), 40, gradientPaint);
+
+    // Draw shadow rectangle
+    final shadowPaint = Paint()
+      ..color = Colors.black.withOpacity(0.3)
+      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 5);
+    canvas.drawRect(
+      Rect.fromCenter(center: Offset(centerX + 80, centerY - 50), width: 80, height: 60),
+      shadowPaint,
+    );
+
+    // Draw actual rectangle on top
+    final rectPaint = Paint()
+      ..color = Colors.blue
+      ..style = PaintingStyle.fill;
+    canvas.drawRect(
+      Rect.fromCenter(center: Offset(centerX + 75, centerY - 55), width: 80, height: 60),
+      rectPaint,
+    );
+
+    // Draw textured oval using pattern
+    final texturePaint = Paint()
+      ..color = Colors.green
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 2;
+
+    // Create a pattern by drawing multiple concentric ovals
+    for (int i = 0; i < 5; i++) {
+      canvas.drawOval(
+        Rect.fromCenter(
+          center: Offset(centerX, centerY + 50), 
+          width: 100 - (i * 10), 
+          height: 60 - (i * 6)
+        ),
+        texturePaint,
+      );
+    }
+
+    // Draw star shape
+    final starPaint = Paint()
+      ..color = Colors.yellow
+      ..style = PaintingStyle.fill;
+
+    Path starPath = Path();
+    const int numPoints = 5;
+    const double outerRadius = 30;
+    const double innerRadius = 15;
+    const double startAngle = -pi / 2;
+
+    for (int i = 0; i < numPoints * 2; i++) {
+      final double angle = startAngle + (i * pi / numPoints);
+      final double radius = i.isEven ? outerRadius : innerRadius;
+      final double x = centerX - 80 + cos(angle) * radius;
+      final double y = centerY + 50 + sin(angle) * radius;
+
+      if (i == 0) {
+        starPath.moveTo(x, y);
+      } else {
+        starPath.lineTo(x, y);
+      }
+    }
+    starPath.close();
+    canvas.drawPath(starPath, starPaint);
+
+    // Draw dashed line
+    final dashPaint = Paint()
+      ..color = Colors.red
+      ..strokeWidth = 3
+      ..style = PaintingStyle.stroke;
+
+    const double dashWidth = 10;
+    const double dashSpace = 5;
+    double startX = centerX - 100;
+    final double endX = centerX + 100;
+    final double y = centerY + 120;
+
+    while (startX < endX) {
+      canvas.drawLine(
+        Offset(startX, y),
+        Offset(startX + dashWidth, y),
+        dashPaint,
+      );
+      startX += dashWidth + dashSpace;
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) {
+    return false;
   }
 }
