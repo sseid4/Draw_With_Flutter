@@ -21,6 +21,13 @@ class EmojiDrawingApp extends StatelessWidget {
   }
 }
 
+class EmojiInstance {
+  final EmojiType type;
+  final Offset position;
+  const EmojiInstance({required this.type, required this.position});
+}
+
+
 class GradientText extends StatelessWidget {
   final String text;
   final TextStyle style;
@@ -55,6 +62,7 @@ class EmojiDrawingScreen extends StatefulWidget {
 
 class _EmojiDrawingScreenState extends State<EmojiDrawingScreen> {
   EmojiType selectedEmoji = EmojiType.smileyFace;
+  final List<EmojiInstance> _placedEmojis = [];
 
   @override
   Widget build(BuildContext context) {
@@ -120,7 +128,31 @@ class _EmojiDrawingScreenState extends State<EmojiDrawingScreen> {
                           end: Alignment.bottomRight,
                         ),
                       ),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 10),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          GradientText(
+                            'Tap the canvas to add emojis',
+                            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+                            gradient: const LinearGradient(
+                              colors: [Colors.purple, Colors.orange],
+                            ),
+                          ),
+                          TextButton.icon(
+                            onPressed: () {
+                              setState(() => _placedEmojis.clear());
+                            },
+                            style: TextButton.styleFrom(
+                              backgroundColor: Colors.purple.shade50,
+                              foregroundColor: Colors.purple,
+                            ),
+                            icon: const Icon(Icons.clear_all),
+                            label: const Text('Clear'),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
@@ -161,9 +193,21 @@ class _EmojiDrawingScreenState extends State<EmojiDrawingScreen> {
                         radius: 0.8,
                       ),
                     ),
-                    child: CustomPaint(
-                      painter: DynamicEmojiPainter(selectedEmoji),
-                      size: Size.infinite,
+                    child: GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      onTapDown: (details) {
+                        final local = details.localPosition;
+                        setState(() {
+                          _placedEmojis.add(EmojiInstance(type: selectedEmoji, position: local));
+                        });
+                      },
+                      child: CustomPaint(
+                        painter: PlacedEmojiPainter(
+                          selected: selectedEmoji,
+                          placed: _placedEmojis,
+                        ),
+                        size: Size.infinite,
+                      ),
                     ),
                   ),
                 ),
@@ -483,6 +527,8 @@ class DynamicEmojiPainter extends CustomPainter {
       ..shader = LinearGradient(
         colors: [Colors.red.shade300, Colors.red.shade700, Colors.red.shade900],
         begin: Alignment.topLeft,
+
+
         end: Alignment.bottomRight,
       ).createShader(Rect.fromLTWH(centerX - size.width * 0.25, centerY - size.height * 0.2, size.width * 0.5, size.height * 0.4));
 
@@ -754,4 +800,179 @@ class StyledShapesPainter extends CustomPainter {
   bool shouldRepaint(covariant CustomPainter oldDelegate) {
     return false;
   }
+}
+
+
+class PlacedEmojiPainter extends CustomPainter {
+  final EmojiType selected;
+  final List<EmojiInstance> placed;
+  PlacedEmojiPainter({required this.selected, required this.placed});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    if (placed.isEmpty) {
+      // Fallback to single selected emoji centered (preserve previous behavior)
+      DynamicEmojiPainter(selected).paint(canvas, size);
+      return;
+    }
+
+    // Draw each placed emoji at its tapped position
+    final base = size.shortestSide;
+    final radius = (base * 0.08).clamp(20.0, 60.0); // responsive size per emoji
+
+    for (final e in placed) {
+      switch (e.type) {
+        case EmojiType.smileyFace:
+          _drawSmileyAt(canvas, e.position, radius);
+          break;
+        case EmojiType.partyFace:
+          _drawPartyAt(canvas, e.position, radius);
+          break;
+        case EmojiType.heart:
+          _drawHeartAt(canvas, e.position, radius);
+          break;
+      }
+    }
+  }
+
+  void _drawSmileyAt(Canvas canvas, Offset c, double r) {
+    // Face (gradient fill)
+    final faceRect = Rect.fromCircle(center: c, radius: r);
+    final facePaint = Paint()
+      ..shader = const RadialGradient(
+        colors: [Colors.yellow, Colors.orangeAccent],
+        center: Alignment(-0.4, -0.4),
+      ).createShader(faceRect);
+    canvas.drawCircle(c, r, facePaint);
+
+    // Outline
+    final outline = Paint()
+      ..color = Colors.orange.shade700
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = r * 0.08;
+    canvas.drawCircle(c, r, outline);
+
+    // Eyes
+    final eyePaint = Paint()..color = Colors.black;
+    canvas.drawCircle(Offset(c.dx - r * 0.4, c.dy - r * 0.25), r * 0.14, eyePaint);
+    canvas.drawCircle(Offset(c.dx + r * 0.4, c.dy - r * 0.25), r * 0.14, eyePaint);
+
+    // Smile (arc)
+    final smile = Paint()
+      ..color = Colors.black
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = r * 0.18
+      ..strokeCap = StrokeCap.round;
+    canvas.drawArc(
+      Rect.fromCenter(center: Offset(c.dx, c.dy + r * 0.1), width: r * 1.2, height: r * 0.9),
+      0.3,
+      pi - 0.6,
+      false,
+      smile,
+    );
+
+    // Custom design: cheeks
+    final cheek = Paint()..color = Colors.pink.shade200.withOpacity(0.7);
+    canvas.drawCircle(Offset(c.dx - r * 0.6, c.dy + r * 0.15), r * 0.2, cheek);
+    canvas.drawCircle(Offset(c.dx + r * 0.6, c.dy + r * 0.15), r * 0.2, cheek);
+  }
+
+  void _drawPartyAt(Canvas canvas, Offset c, double r) {
+    // Face with party gradient
+    final faceRect = Rect.fromCircle(center: c, radius: r);
+    final facePaint = Paint()
+      ..shader = const RadialGradient(
+        colors: [Colors.yellow, Colors.deepOrangeAccent],
+        center: Alignment(-0.4, -0.4),
+      ).createShader(faceRect);
+    canvas.drawCircle(c, r, facePaint);
+
+    // Outline
+    final outline = Paint()
+      ..color = Colors.deepOrange.shade700
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = r * 0.08;
+    canvas.drawCircle(c, r, outline);
+
+    // Eyes
+    final eye = Paint()..color = Colors.black;
+    canvas.drawCircle(Offset(c.dx - r * 0.35, c.dy - r * 0.2), r * 0.14, eye);
+    canvas.drawCircle(Offset(c.dx + r * 0.35, c.dy - r * 0.2), r * 0.14, eye);
+
+    // Smile
+    final smile = Paint()
+      ..color = Colors.black
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = r * 0.16
+      ..strokeCap = StrokeCap.round;
+    canvas.drawArc(
+      Rect.fromCenter(center: Offset(c.dx, c.dy + r * 0.1), width: r * 1.3, height: r * 0.9),
+      0.2,
+      pi - 0.4,
+      false,
+      smile,
+    );
+
+    // Party hat
+    final hatRect = Rect.fromLTWH(c.dx - r * 0.8, c.dy - r * 1.5, r * 1.6, r * 1.2);
+    final hatPaint = Paint()
+      ..shader = const LinearGradient(
+        colors: [Colors.purple, Colors.pink, Colors.red],
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+      ).createShader(hatRect);
+    final hat = Path()
+      ..moveTo(c.dx - r * 0.7, c.dy - r * 0.3)
+      ..lineTo(c.dx + r * 0.7, c.dy - r * 0.3)
+      ..lineTo(c.dx, c.dy - r * 1.5)
+      ..close();
+    canvas.drawPath(hat, hatPaint);
+    canvas.drawPath(hat, Paint()..color = Colors.black..style = PaintingStyle.stroke..strokeWidth = r * 0.06);
+
+    // Confetti
+    final confettiColors = [Colors.red, Colors.blue, Colors.green, Colors.yellow, Colors.pink, Colors.orange, Colors.purple];
+    for (int i = 0; i < 10; i++) {
+      final t = (i / 10.0) * 2 * pi;
+      final pos = Offset(c.dx + cos(t) * r * 1.4, c.dy + sin(t) * r * 1.2);
+      final paint = Paint()..color = confettiColors[i % confettiColors.length];
+      switch (i % 3) {
+        case 0:
+          canvas.drawCircle(pos, r * 0.08, paint);
+          break;
+        case 1:
+          canvas.drawRect(Rect.fromCenter(center: pos, width: r * 0.14, height: r * 0.14), paint);
+          break;
+        case 2:
+          final tri = Path()
+            ..moveTo(pos.dx, pos.dy - r * 0.1)
+            ..lineTo(pos.dx - r * 0.08, pos.dy + r * 0.05)
+            ..lineTo(pos.dx + r * 0.08, pos.dy + r * 0.05)
+            ..close();
+          canvas.drawPath(tri, paint);
+          break;
+      }
+    }
+  }
+
+  void _drawHeartAt(Canvas canvas, Offset c, double r) {
+    final rect = Rect.fromCircle(center: c, radius: r * 1.3);
+    final fill = Paint()
+      ..shader = const LinearGradient(
+        colors: [Colors.redAccent, Colors.red, Colors.red],
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+      ).createShader(rect);
+
+    final p = Path();
+    final s = r * 1.2;
+    p.moveTo(c.dx, c.dy + s * 0.6);
+    p.cubicTo(c.dx - s, c.dy + s * 0.2, c.dx - s, c.dy - s * 0.6, c.dx, c.dy - s * 0.2);
+    p.cubicTo(c.dx + s, c.dy - s * 0.6, c.dx + s, c.dy + s * 0.2, c.dx, c.dy + s * 0.6);
+
+    canvas.drawPath(p, Paint()..shader = fill.shader);
+    canvas.drawPath(p, Paint()..color = Colors.red.shade900..style = PaintingStyle.stroke..strokeWidth = r * 0.08);
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }
