@@ -21,6 +21,25 @@ class EmojiDrawingApp extends StatelessWidget {
   }
 }
 
+class GradientText extends StatelessWidget {
+  final String text;
+  final TextStyle style;
+  final Gradient gradient;
+  const GradientText(this.text, {super.key, required this.style, required this.gradient});
+
+  @override
+  Widget build(BuildContext context) {
+    return ShaderMask(
+      blendMode: BlendMode.srcIn,
+      shaderCallback: (bounds) => gradient.createShader(
+        Rect.fromLTWH(0, 0, bounds.width, bounds.height),
+      ),
+      child: Text(text, style: style),
+    );
+  }
+}
+
+
 enum EmojiType {
   smileyFace,
   partyFace,
@@ -41,7 +60,15 @@ class _EmojiDrawingScreenState extends State<EmojiDrawingScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Interactive Emoji Drawing'),
+        title: GradientText(
+          'Interactive Emoji Drawing',
+          style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          gradient: const LinearGradient(
+            colors: [Colors.white, Colors.yellow],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+        ),
         flexibleSpace: Container(
           decoration: const BoxDecoration(
             gradient: LinearGradient(
@@ -81,11 +108,16 @@ class _EmojiDrawingScreenState extends State<EmojiDrawingScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
+                      GradientText(
                         'Select an Emoji to Draw:',
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
+                        ),
+                        gradient: const LinearGradient(
+                          colors: [Colors.purple, Colors.pink],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
                         ),
                       ),
                       const SizedBox(height: 16),
@@ -114,7 +146,7 @@ class _EmojiDrawingScreenState extends State<EmojiDrawingScreen> {
                 ),
               ),
               const SizedBox(height: 20),
-              
+
               // Drawing Area
               Expanded(
                 child: Card(
@@ -228,7 +260,7 @@ class DynamicEmojiPainter extends CustomPainter {
         colors: [Colors.yellow.shade400, Colors.yellow.shade600],
         center: Alignment.topLeft,
       ).createShader(Rect.fromCircle(center: Offset(centerX, centerY), radius: size.width * 0.3));
-    
+
     canvas.drawCircle(Offset(centerX, centerY), size.width * 0.3, facePaint);
 
     // Face outline
@@ -242,15 +274,15 @@ class DynamicEmojiPainter extends CustomPainter {
     final eyePaint = Paint()
       ..color = Colors.black
       ..style = PaintingStyle.fill;
-    
+
     canvas.drawCircle(
-      Offset(centerX - size.width * 0.1, centerY - size.height * 0.08), 
-      size.width * 0.03, 
+      Offset(centerX - size.width * 0.1, centerY - size.height * 0.08),
+      size.width * 0.03,
       eyePaint
     );
     canvas.drawCircle(
-      Offset(centerX + size.width * 0.1, centerY - size.height * 0.08), 
-      size.width * 0.03, 
+      Offset(centerX + size.width * 0.1, centerY - size.height * 0.08),
+      size.width * 0.03,
       eyePaint
     );
 
@@ -258,15 +290,15 @@ class DynamicEmojiPainter extends CustomPainter {
     final eyeShinePaint = Paint()
       ..color = Colors.white
       ..style = PaintingStyle.fill;
-    
+
     canvas.drawCircle(
-      Offset(centerX - size.width * 0.09, centerY - size.height * 0.09), 
-      size.width * 0.01, 
+      Offset(centerX - size.width * 0.09, centerY - size.height * 0.09),
+      size.width * 0.01,
       eyeShinePaint
     );
     canvas.drawCircle(
-      Offset(centerX + size.width * 0.11, centerY - size.height * 0.09), 
-      size.width * 0.01, 
+      Offset(centerX + size.width * 0.11, centerY - size.height * 0.09),
+      size.width * 0.01,
       eyeShinePaint
     );
 
@@ -293,15 +325,15 @@ class DynamicEmojiPainter extends CustomPainter {
     final cheekPaint = Paint()
       ..color = Colors.pink.shade200.withOpacity(0.7)
       ..style = PaintingStyle.fill;
-    
+
     canvas.drawCircle(
-      Offset(centerX - size.width * 0.18, centerY + size.height * 0.02), 
-      size.width * 0.04, 
+      Offset(centerX - size.width * 0.18, centerY + size.height * 0.02),
+      size.width * 0.04,
       cheekPaint
     );
     canvas.drawCircle(
-      Offset(centerX + size.width * 0.18, centerY + size.height * 0.02), 
-      size.width * 0.04, 
+      Offset(centerX + size.width * 0.18, centerY + size.height * 0.02),
+      size.width * 0.04,
       cheekPaint
     );
   }
@@ -316,7 +348,7 @@ class DynamicEmojiPainter extends CustomPainter {
         colors: [Colors.yellow.shade300, Colors.orange.shade400],
         center: Alignment.topLeft,
       ).createShader(Rect.fromCircle(center: Offset(centerX, centerY), radius: size.width * 0.3));
-    
+
     canvas.drawCircle(Offset(centerX, centerY), size.width * 0.3, facePaint);
 
     // Face outline
@@ -333,7 +365,7 @@ class DynamicEmojiPainter extends CustomPainter {
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
       ).createShader(Rect.fromLTWH(centerX - size.width * 0.15, centerY - size.height * 0.35, size.width * 0.3, size.height * 0.25));
-    
+
     final hatPath = Path();
     hatPath.moveTo(centerX - size.width * 0.15, centerY - size.height * 0.1); // Bottom left
     hatPath.lineTo(centerX + size.width * 0.15, centerY - size.height * 0.1); // Bottom right
@@ -353,8 +385,8 @@ class DynamicEmojiPainter extends CustomPainter {
       ..color = Colors.white
       ..style = PaintingStyle.fill;
     canvas.drawCircle(
-      Offset(centerX, centerY - size.height * 0.35), 
-      size.width * 0.02, 
+      Offset(centerX, centerY - size.height * 0.35),
+      size.width * 0.02,
       pompomPaint
     );
 
@@ -362,15 +394,15 @@ class DynamicEmojiPainter extends CustomPainter {
     final eyePaint = Paint()
       ..color = Colors.black
       ..style = PaintingStyle.fill;
-    
+
     canvas.drawCircle(
-      Offset(centerX - size.width * 0.1, centerY - size.height * 0.05), 
-      size.width * 0.03, 
+      Offset(centerX - size.width * 0.1, centerY - size.height * 0.05),
+      size.width * 0.03,
       eyePaint
     );
     canvas.drawCircle(
-      Offset(centerX + size.width * 0.1, centerY - size.height * 0.05), 
-      size.width * 0.03, 
+      Offset(centerX + size.width * 0.1, centerY - size.height * 0.05),
+      size.width * 0.03,
       eyePaint
     );
 
@@ -399,7 +431,7 @@ class DynamicEmojiPainter extends CustomPainter {
 
   void _drawConfetti(Canvas canvas, Size size, double centerX, double centerY) {
     final random = Random(42); // Fixed seed for consistent confetti
-    
+
     // Different confetti colors
     final confettiColors = [
       Colors.red,
@@ -457,24 +489,24 @@ class DynamicEmojiPainter extends CustomPainter {
     // Draw heart shape
     final heartPath = Path();
     final heartSize = size.width * 0.3;
-    
+
     // Start from the bottom point of the heart
     heartPath.moveTo(centerX, centerY + heartSize * 0.3);
-    
+
     // Left curve
     heartPath.cubicTo(
       centerX - heartSize * 0.5, centerY + heartSize * 0.1,
       centerX - heartSize * 0.5, centerY - heartSize * 0.3,
       centerX, centerY - heartSize * 0.1,
     );
-    
+
     // Right curve
     heartPath.cubicTo(
       centerX + heartSize * 0.5, centerY - heartSize * 0.3,
       centerX + heartSize * 0.5, centerY + heartSize * 0.1,
       centerX, centerY + heartSize * 0.3,
     );
-    
+
     canvas.drawPath(heartPath, heartPaint);
 
     // Heart outline
@@ -506,7 +538,7 @@ class DynamicEmojiPainter extends CustomPainter {
       // Draw sparkle as a star shape
       final sparkleSize = size.width * 0.02;
       final sparklePath = Path();
-      
+
       // Simple 4-pointed star
       sparklePath.moveTo(position.dx, position.dy - sparkleSize);
       sparklePath.lineTo(position.dx + sparkleSize * 0.3, position.dy - sparkleSize * 0.3);
@@ -517,7 +549,7 @@ class DynamicEmojiPainter extends CustomPainter {
       sparklePath.lineTo(position.dx - sparkleSize, position.dy);
       sparklePath.lineTo(position.dx - sparkleSize * 0.3, position.dy - sparkleSize * 0.3);
       sparklePath.close();
-      
+
       canvas.drawPath(sparklePath, sparklePaint);
     }
   }
@@ -531,67 +563,79 @@ class DynamicEmojiPainter extends CustomPainter {
 class CombinedShapesPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
-    // Task 1: Drawing Shapes (Square, circle, and arc) instead of lines
+    // Task 1 with gradients: Square, Circle, Arc, Triangle
 
-    // Paint for square
+    // Square with linear gradient
+    final squareRect = Rect.fromLTWH(
+      size.width * 0.1,
+      size.height * 0.1,
+      size.width * 0.25,
+      size.width * 0.25,
+    );
     final squarePaint = Paint()
-      ..color = Colors.blue
+      ..shader = const LinearGradient(
+        colors: [Colors.blue, Colors.cyan],
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+      ).createShader(squareRect)
       ..style = PaintingStyle.fill;
+    canvas.drawRect(squareRect, squarePaint);
 
-    // Paint for circle
+    // Circle with radial gradient
+    final circleCenter = Offset(size.width * 0.7, size.height * 0.22);
+    final circleRadius = size.width * 0.12;
+    final circleRect = Rect.fromCircle(center: circleCenter, radius: circleRadius);
     final circlePaint = Paint()
-      ..color = Colors.red
+      ..shader = const RadialGradient(
+        colors: [Colors.red, Colors.orange],
+        center: Alignment(-0.3, -0.3),
+        radius: 1.0,
+      ).createShader(circleRect)
       ..style = PaintingStyle.fill;
+    canvas.drawCircle(circleCenter, circleRadius, circlePaint);
 
-    // Paint for arc
+    // Arc with sweep gradient stroke
+    final arcRect = Rect.fromLTWH(
+      size.width * 0.2,
+      size.height * 0.5,
+      size.width * 0.6,
+      size.height * 0.3,
+    );
     final arcPaint = Paint()
-      ..color = Colors.green
+      ..shader = const SweepGradient(
+        colors: [Colors.green, Colors.lightGreen, Colors.green],
+        startAngle: 0,
+        endAngle: pi,
+      ).createShader(arcRect)
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 8.0;
-
-    // Paint for additional shapes
-    final trianglePaint = Paint()
-      ..color = Colors.purple
-      ..style = PaintingStyle.fill;
-
-    // Draw a square
-    canvas.drawRect(
-      Rect.fromLTWH(
-        size.width * 0.1,
-        size.height * 0.1,
-        size.width * 0.25,
-        size.width * 0.25,
-      ),
-      squarePaint,
-    );
-
-    // Draw a circle
-    canvas.drawCircle(
-      Offset(size.width * 0.7, size.height * 0.22),
-      size.width * 0.12,
-      circlePaint,
-    );
-
-    // Draw an arc (smile shape)
+      ..strokeWidth = 8.0
+      ..strokeCap = StrokeCap.round;
     canvas.drawArc(
-      Rect.fromLTWH(
-        size.width * 0.2,
-        size.height * 0.5,
-        size.width * 0.6,
-        size.height * 0.3,
-      ),
+      arcRect,
       0, // start angle
       pi, // sweep angle (half circle)
       false, // use center
       arcPaint,
     );
 
-    // Draw a triangle
-    final trianglePath = Path();
-    trianglePath.moveTo(size.width * 0.15, size.height * 0.85); // Bottom left
-    trianglePath.lineTo(size.width * 0.35, size.height * 0.85); // Bottom right
-    trianglePath.lineTo(size.width * 0.25, size.height * 0.65); // Top
-    trianglePath.close();
+    // Triangle with linear gradient fill
+    final triLeft = size.width * 0.15;
+    final triRight = size.width * 0.35;
+    final triBottom = size.height * 0.85;
+    final triTop = size.height * 0.65;
+    final trianglePath = Path()
+      ..moveTo(triLeft, triBottom)
+      ..lineTo(triRight, triBottom)
+      ..lineTo((triLeft + triRight) / 2, triTop)
+      ..close();
+    final triangleBounds = Rect.fromLTRB(triLeft, triTop, triRight, triBottom);
+    final trianglePaint = Paint()
+      ..shader = const LinearGradient(
+        colors: [Colors.purple, Colors.deepPurpleAccent],
+        begin: Alignment.bottomLeft,
+        end: Alignment.topRight,
+      ).createShader(triangleBounds)
+      ..style = PaintingStyle.fill;
     canvas.drawPath(trianglePath, trianglePaint);
   }
 
