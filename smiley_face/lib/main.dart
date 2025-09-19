@@ -12,10 +12,7 @@ class ShapesDemoApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Shapes Drawing Demo',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-        useMaterial3: true,
-      ),
+      theme: ThemeData(primarySwatch: Colors.blue, useMaterial3: true),
       home: const ShapesDemoScreen(),
     );
   }
@@ -27,9 +24,7 @@ class ShapesDemoScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Shapes Drawing Demo'),
-      ),
+      appBar: AppBar(title: const Text('Shapes Drawing Demo')),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -156,85 +151,68 @@ class BasicShapesPainter extends CustomPainter {
 class CombinedShapesPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
-    final centerX = size.width / 2;
-    final centerY = size.height / 2;
+    // Task 1: Drawing Shapes (Square, circle, and arc) instead of lines
 
-    // Background gradient
-    final backgroundGradient = RadialGradient(
-      center: Alignment.center,
-      radius: 0.8,
-      colors: [Colors.blue.shade100, Colors.white],
-    );
-    canvas.drawRect(
-      Rect.fromLTWH(0, 0, size.width, size.height),
-      Paint()..shader = backgroundGradient.createShader(Rect.fromLTWH(0, 0, size.width, size.height)),
-    );
-
-    // Draw a sun (circle with rays)
-    final sunPaint = Paint()
-      ..color = Colors.yellow
+    // Paint for square
+    final squarePaint = Paint()
+      ..color = Colors.blue
       ..style = PaintingStyle.fill;
-    canvas.drawCircle(Offset(centerX, centerY - 40), 40, sunPaint);
 
-    // Sun rays (lines)
-    final rayPaint = Paint()
-      ..color = Colors.yellow
-      ..strokeWidth = 3;
-    for (int i = 0; i < 8; i++) {
-      final angle = i * (pi / 4); // Use pi from dart:math
-      final dx = cos(angle) * 60;
-      final dy = sin(angle) * 60;
-      canvas.drawLine(
-        Offset(centerX, centerY - 40),
-        Offset(centerX + dx, centerY - 40 + dy),
-        rayPaint,
-      );
-    }
-
-    // Draw a house (square with triangle roof)
-    final housePaint = Paint()
-      ..color = Colors.brown
-      ..style = PaintingStyle.fill;
-    
-    // House body (rectangle)
-    canvas.drawRect(
-      Rect.fromCenter(center: Offset(centerX, centerY + 60), width: 80, height: 60),
-      housePaint,
-    );
-    
-    // House roof (triangle)
-    final roofPaint = Paint()
+    // Paint for circle
+    final circlePaint = Paint()
       ..color = Colors.red
       ..style = PaintingStyle.fill;
-    
-    Path roofPath = Path();
-    roofPath.moveTo(centerX - 50, centerY + 30); // Bottom left of roof
-    roofPath.lineTo(centerX, centerY); // Top of roof
-    roofPath.lineTo(centerX + 50, centerY + 30); // Bottom right of roof
-    roofPath.close();
-    canvas.drawPath(roofPath, roofPaint);
-    
-    // House door
-    final doorPaint = Paint()
-      ..color = Colors.black
+
+    // Paint for arc
+    final arcPaint = Paint()
+      ..color = Colors.green
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 8.0;
+
+    // Paint for additional shapes
+    final trianglePaint = Paint()
+      ..color = Colors.purple
       ..style = PaintingStyle.fill;
+
+    // Draw a square
     canvas.drawRect(
-      Rect.fromCenter(center: Offset(centerX, centerY + 75), width: 20, height: 30),
-      doorPaint,
+      Rect.fromLTWH(
+        size.width * 0.1,
+        size.height * 0.1,
+        size.width * 0.25,
+        size.width * 0.25,
+      ),
+      squarePaint,
     );
-    
-    // House windows
-    final windowPaint = Paint()
-      ..color = Colors.lightBlue
-      ..style = PaintingStyle.fill;
-    canvas.drawRect(
-      Rect.fromCenter(center: Offset(centerX - 25, centerY + 50), width: 15, height: 15),
-      windowPaint,
+
+    // Draw a circle
+    canvas.drawCircle(
+      Offset(size.width * 0.7, size.height * 0.22),
+      size.width * 0.12,
+      circlePaint,
     );
-    canvas.drawRect(
-      Rect.fromCenter(center: Offset(centerX + 25, centerY + 50), width: 15, height: 15),
-      windowPaint,
+
+    // Draw an arc (smile shape)
+    canvas.drawArc(
+      Rect.fromLTWH(
+        size.width * 0.2,
+        size.height * 0.5,
+        size.width * 0.6,
+        size.height * 0.3,
+      ),
+      0, // start angle
+      pi, // sweep angle (half circle)
+      false, // use center
+      arcPaint,
     );
+
+    // Draw a triangle
+    final trianglePath = Path();
+    trianglePath.moveTo(size.width * 0.15, size.height * 0.85); // Bottom left
+    trianglePath.lineTo(size.width * 0.35, size.height * 0.85); // Bottom right
+    trianglePath.lineTo(size.width * 0.25, size.height * 0.65); // Top
+    trianglePath.close();
+    canvas.drawPath(trianglePath, trianglePaint);
   }
 
   @override
@@ -246,102 +224,106 @@ class CombinedShapesPainter extends CustomPainter {
 class StyledShapesPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
+    // Task 2: Drawing an Emoji - Create the best big bright smile possible
     final centerX = size.width / 2;
     final centerY = size.height / 2;
 
-    // Create gradient paint
-    final gradientPaint = Paint()
-      ..shader = LinearGradient(
-        colors: [Colors.purple, Colors.pink, Colors.orange],
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-      ).createShader(Rect.fromLTWH(0, 0, size.width, size.height));
-
-    // Draw gradient circle
-    canvas.drawCircle(Offset(centerX - 80, centerY - 50), 40, gradientPaint);
-
-    // Draw shadow rectangle
-    final shadowPaint = Paint()
-      ..color = Colors.black.withOpacity(0.3)
-      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 5);
-    canvas.drawRect(
-      Rect.fromCenter(center: Offset(centerX + 80, centerY - 50), width: 80, height: 60),
-      shadowPaint,
-    );
-
-    // Draw actual rectangle on top
-    final rectPaint = Paint()
-      ..color = Colors.blue
+    // Draw the face (big bright yellow circle)
+    final facePaint = Paint()
+      ..color = Colors.yellow.shade600
       ..style = PaintingStyle.fill;
-    canvas.drawRect(
-      Rect.fromCenter(center: Offset(centerX + 75, centerY - 55), width: 80, height: 60),
-      rectPaint,
-    );
 
-    // Draw textured oval using pattern
-    final texturePaint = Paint()
-      ..color = Colors.green
+    // Face shadow for depth
+    final faceShadowPaint = Paint()
+      ..color = Colors.yellow.shade800.withOpacity(0.3)
+      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 8);
+
+    canvas.drawCircle(
+      Offset(centerX + 2, centerY + 2),
+      size.width * 0.35,
+      faceShadowPaint,
+    );
+    canvas.drawCircle(Offset(centerX, centerY), size.width * 0.35, facePaint);
+
+    // Face outline
+    final faceOutlinePaint = Paint()
+      ..color = Colors.orange.shade700
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 2;
+      ..strokeWidth = 4;
+    canvas.drawCircle(
+      Offset(centerX, centerY),
+      size.width * 0.35,
+      faceOutlinePaint,
+    );
 
-    // Create a pattern by drawing multiple concentric ovals
-    for (int i = 0; i < 5; i++) {
-      canvas.drawOval(
-        Rect.fromCenter(
-          center: Offset(centerX, centerY + 50), 
-          width: 100 - (i * 10), 
-          height: 60 - (i * 6)
-        ),
-        texturePaint,
-      );
-    }
-
-    // Draw star shape
-    final starPaint = Paint()
-      ..color = Colors.yellow
+    // Fill the left eye (solid black circle)
+    final eyePaint = Paint()
+      ..color = Colors.black
       ..style = PaintingStyle.fill;
 
-    Path starPath = Path();
-    const int numPoints = 5;
-    const double outerRadius = 30;
-    const double innerRadius = 15;
-    const double startAngle = -pi / 2;
+    canvas.drawCircle(
+      Offset(centerX - size.width * 0.12, centerY - size.height * 0.08),
+      size.width * 0.04,
+      eyePaint,
+    );
 
-    for (int i = 0; i < numPoints * 2; i++) {
-      final double angle = startAngle + (i * pi / numPoints);
-      final double radius = i.isEven ? outerRadius : innerRadius;
-      final double x = centerX - 80 + cos(angle) * radius;
-      final double y = centerY + 50 + sin(angle) * radius;
+    // Fill the right eye (solid black circle)
+    canvas.drawCircle(
+      Offset(centerX + size.width * 0.12, centerY - size.height * 0.08),
+      size.width * 0.04,
+      eyePaint,
+    );
 
-      if (i == 0) {
-        starPath.moveTo(x, y);
-      } else {
-        starPath.lineTo(x, y);
-      }
-    }
-    starPath.close();
-    canvas.drawPath(starPath, starPaint);
+    // Add eye shine (small white circles)
+    final eyeShinePaint = Paint()
+      ..color = Colors.white
+      ..style = PaintingStyle.fill;
 
-    // Draw dashed line
-    final dashPaint = Paint()
-      ..color = Colors.red
-      ..strokeWidth = 3
-      ..style = PaintingStyle.stroke;
+    canvas.drawCircle(
+      Offset(centerX - size.width * 0.105, centerY - size.height * 0.095),
+      size.width * 0.015,
+      eyeShinePaint,
+    );
+    canvas.drawCircle(
+      Offset(centerX + size.width * 0.135, centerY - size.height * 0.095),
+      size.width * 0.015,
+      eyeShinePaint,
+    );
 
-    const double dashWidth = 10;
-    const double dashSpace = 5;
-    double startX = centerX - 100;
-    final double endX = centerX + 100;
-    final double y = centerY + 120;
+    // Draw the smile (this is an arc)
+    final smilePaint = Paint()
+      ..color = Colors.black
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 8
+      ..strokeCap = StrokeCap.round;
 
-    while (startX < endX) {
-      canvas.drawLine(
-        Offset(startX, y),
-        Offset(startX + dashWidth, y),
-        dashPaint,
-      );
-      startX += dashWidth + dashSpace;
-    }
+    canvas.drawArc(
+      Rect.fromCenter(
+        center: Offset(centerX, centerY + size.height * 0.05),
+        width: size.width * 0.35,
+        height: size.height * 0.25,
+      ),
+      0.3, // start angle (slightly offset for natural smile)
+      pi - 0.6, // sweep angle (most of semicircle)
+      false, // don't use center
+      smilePaint,
+    );
+
+    // Make custom designs - add rosy cheeks
+    final cheekPaint = Paint()
+      ..color = Colors.pink.shade200.withOpacity(0.7)
+      ..style = PaintingStyle.fill;
+
+    canvas.drawCircle(
+      Offset(centerX - size.width * 0.22, centerY + size.height * 0.03),
+      size.width * 0.05,
+      cheekPaint,
+    );
+    canvas.drawCircle(
+      Offset(centerX + size.width * 0.22, centerY + size.height * 0.03),
+      size.width * 0.05,
+      cheekPaint,
+    );
   }
 
   @override
